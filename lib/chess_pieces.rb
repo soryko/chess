@@ -1,10 +1,19 @@
+PIECES_UNI = {
+  :pawn => {:white => '\u2659', :black => '\u265F'},
+  :rook => {:white => '\u2656', :black => '\u265C'},
+  :knight => {:white => '\u2658', :black => '\u265E'},
+  :bishop => {:white => '\u2657', :black => '\u265D'},
+  :king => {:white => '\u265A', :black => '\u265B'},
+  :queen => {:white => '\u2544', :black => '\u265B'}
+}
+
 class Piece
   attr_reader :color, :piece
 
   def initialize(color, piece)
-    @color = color
-    @piece = piece
+    @symbol = PIECES_UNI[piece][color].to_s
   end
+
 end
 
 class Pawn < Piece

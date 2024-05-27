@@ -1,8 +1,8 @@
 class Board
-attr_reader :rows
+  attr_accessor :rows
 
   def initalize
-    @rows = Array.new(7) { Array.new(7) {nil} }
+    @rows = Array.new(7) { Array.new(7) {""} }
   end
 
   def get(x, y)
@@ -17,3 +17,7 @@ attr_reader :rows
     @promotion_piece = piece
   end
 end
+
+board = Board.new
+board.set(2,0, 'K')
+p board.rows
