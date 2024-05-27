@@ -1,3 +1,6 @@
+
+require_relative 'chess_pieces'
+
 class ChessGame
   attr_reader :board
 
@@ -28,4 +31,13 @@ class ChessGame
     @board[6,7] = Piece.new( :white, :knight )
     @board[7,7] = Piece.new( :white, :rook )
   end
+
+  def show_board
+    @board.each do |row|
+      puts row.join("|")
+    end
+  end
 end
+
+game = ChessGame.new
+game.show_board
