@@ -1,25 +1,26 @@
 PIECES_UNI = {
-  :pawn => {:white => '\u2659', :black => '\u265F'},
-  :rook => {:white => '\u2656', :black => '\u265C'},
-  :knight => {:white => '\u2658', :black => '\u265E'},
-  :bishop => {:white => '\u2657', :black => '\u265D'},
-  :king => {:white => '\u265A', :black => '\u265B'},
-  :queen => {:white => '\u2544', :black => '\u265B'}
+  :pawn => {:white => "\u2659", :black => "\u265F"},
+  :rook => {:white => "\u2656", :black => "\u265C"},
+  :knight => {:white => "\u2658", :black => "\u265E"},
+  :bishop => {:white => "\u2657", :black => "\u265D"},
+  :king => {:white => "\u2654", :black => "\u265A"},
+  :queen => {:white => "\u2655", :black => "\u265B"}
 }
 
 class Piece
-  attr_reader :color, :piece
+  attr_reader :color, :piece, :symbol
 
   def initialize(color, piece)
-    @symbol = PIECES_UNI[piece][color].to_s
+    @symbol = PIECES_UNI[piece][color]
   end
-
 end
 
 class Pawn < Piece
   attr_reader :moves
 
-  def initialize
+  def initialize(color)
+    super(color, :pawn)
+
     @moves = {
       up: [0, 1],
       upup: [0, 2],
@@ -32,7 +33,9 @@ end
 class Rook < Piece
   attr_reader :moves
 
-  def initialize
+  def initialize(color)
+    super(color, :pawn)
+
     @moves = {
       horizontal: [8, 0],
       vertical: [0, 8]
@@ -43,7 +46,9 @@ end
 class Knight < Piece
   attr_reader :moves
 
-  def initialize
+  def initialize(color)
+    super(color, :Knight)
+
     @moves = {
       southW: [1, -2],
       southE: [-1, -2],
@@ -60,7 +65,9 @@ end
 class Bishop < Piece
   attr_reader :moves
 
-  def initialize
+  def initialize(color)
+    super(color, :Bishop)
+
     @moves = {
       updiagonal: updiagonal(),
       downdiagonal: downdiagonal()
@@ -93,7 +100,9 @@ end
 class King < Piece
   attr_reader :moves
 
-  def initialize
+  def initialize(color)
+    super(color, :king)
+
     @moves = {
       north: [0, 1],
       northE: [-1, 1],
@@ -110,7 +119,9 @@ end
 class Queen < Piece
   attr_reader :moves
 
-  def initialize
+  def initialize(color)
+    super(color, :queen)
+
     @moves = {
       updiagonal: Bishop.updiagonal,
       downdiagonal: Bishop.downdiagonal,
