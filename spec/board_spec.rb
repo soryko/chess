@@ -20,4 +20,11 @@ describe Board do
       expect(board.set(4,3,'X')).to eql('X')
     end
   end
+  describe '#isoccupied?' do
+    it 'returns true if there is a piece on the square and false if not' do
+      board = Board.new
+      expect(board.isoccupied?(2,7)).to eql(true)
+    end
+  end
+
 end

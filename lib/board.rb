@@ -47,6 +47,10 @@ class Board
       puts row.map { |piece| piece == "" ? " " : piece.symbol }.join("|")
     end
   end
+
+  def isoccupied?(x, y)
+    get(x,y) != " " ? true : false
+  end
 end
 
 board = Board.new
