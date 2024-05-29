@@ -9,12 +9,13 @@ class ChessGame
     @board = Board.new
   end
 
-  def show_board
-    @board.rows.each do |row|
-      puts row.join("|")
+  def play
+    loop do
     end
   end
+
 end
 
 game = ChessGame.new
-game.show_board
+game.board.show_board('black')
+game.board.show_board('white')
