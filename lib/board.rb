@@ -97,6 +97,10 @@ class Board
   def islegal?(color, move)
   end
 
+  def clear(x,y)
+    @row[x,y] = ""
+  end
+
   def move(color, move)
     piece = move.length == 3? move.first : 'pawn'
     x, y = move[-2], move[-1]
@@ -115,9 +119,39 @@ class Board
       when 'Q'
         then
       when 'N'
-        then set(x,y, knight)
+        then
+        knights = find(color, 'knight')
+        knights.each_with_index do |knight, index|
+          j , k = knight[0], knight[1]
+          Knight.moves.each do |move|
+            a,b = move[0], move[1]
+            if [a+j,  k+b] == [x, y]
+              chosen_knight = knights[index]
+              chosen_knight_x = knights[index][0]
+              chosen_knight_y = knights[index][1]
+            end
+          end
+        end
+        knight = find(chosen_knight_x, chosen_knight_y)
+        set(x, y, knight)
+        clear(chosen_knight_x, chosen_knight_y)
       when 'pawn'
         then
+        pawns = find(color, 'pawn')
+        pawns.each_with_index do |pawn, index|
+          j , k = pawn[0], pawn[1]
+          Pawn.moves.each do |move|
+            a,b = move[0], move[1]
+            if [a+j,  k+b] == [x, y]
+              chosen_pawn = pawn[index]
+              chosen_pawn = pawn[index][0]
+              chosen_pawn = pawn[index][1]
+            end
+          end
+        end
+        pawn = find(chosen_pawn_x, chosen_pawn_y)
+        set(x, y, pawn)
+        clear(chosen_pawn_x, chosen_pawn_y)
       end
     end
   end
