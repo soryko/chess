@@ -6,36 +6,36 @@ PIECES_UNI = {
   :king => {:white => "\u2654", :black => "\u265A"},
   :queen => {:white => "\u2655", :black => "\u265B"}
 }
-
 class Piece
-  attr_reader :color, :piece, :symbol
+  attr_reader :color, :piece, :uni
 
-  def initialize(color, piece)
-    @symbol = PIECES_UNI[piece][color]
+  def initialize(color)
+    @color = color
   end
 end
 
 class Pawn < Piece
-  attr_reader :moves
+  attr_reader :moves , :uni
 
   def initialize(color)
-    super(color, :pawn)
+    super(color)
 
+    @uni = color == :white ?  "\u2659" : "\u265F"
     @moves = {
       up: [0, 1],
       upup: [0, 2],
-      capture_left: [-1, 1],
-      capture_right: [1, 1]
     }
+    @capture_moves = { capture_left: [-1, 1], capture_right: [1, 1]}
   end
 end
 
 class Rook < Piece
-  attr_reader :moves
+  attr_reader :moves, :uni
 
   def initialize(color)
-    super(color, :pawn)
+    super(color)
 
+    @uni = color == :white ? "\u2656" : "\u265C"
     @moves = {
       horizontal: [8, 0],
       vertical: [0, 8]
@@ -44,11 +44,12 @@ class Rook < Piece
 end
 
 class Knight < Piece
-  attr_reader :moves
+  attr_reader :moves, :uni
 
   def initialize(color)
-    super(color, :Knight)
+    super(color)
 
+    @uni = color == :white ? "\u2658" : "\u265E"
     @moves = {
       southW: [1, -2],
       southE: [-1, -2],
@@ -63,46 +64,49 @@ class Knight < Piece
 end
 
 class Bishop < Piece
-  attr_reader :moves
+  attr_reader :moves, :uni
 
   def initialize(color)
-    super(color, :Bishop)
+    super(color)
 
+    @uni = color == :white ? "\u2657" : "\u265D"
     @moves = {
       updiagonal: updiagonal(),
       downdiagonal: downdiagonal()
     }
   end
-
-  def updiagonal
-    coordinates = []
-    (-8..8).each do |x|
-      (-8..8).each do |y|
-        next unless (x + y) >= 0
-        coordinates << [x, y]
-      end
-    end
-    coordinates
-  end
-
-  def downdiagonal
-    coordinates = []
-    (-8..8).each do |x|
-      (8..-8).each do |y|
-        next unless (x + y) <= 0
-        coordinates << [x, y]
-      end
-    end
-    coordinates
-  end
 end
 
+def updiagonal
+  coordinates = []
+  (-8..8).each do |x|
+    (-8..8).each do |y|
+      next unless (x + y) >= 0
+      coordinates << [x, y]
+    end
+  end
+  coordinates
+end
+
+def downdiagonal
+  coordinates = []
+  (-8..8).each do |x|
+    (8..-8).each do |y|
+      next unless (x + y) <= 0
+      coordinates << [x, y]
+    end
+  end
+  coordinates
+end
+
+
 class King < Piece
-  attr_reader :moves
+  attr_reader :moves, :uni
 
   def initialize(color)
-    super(color, :king)
+    super(color)
 
+    @uni = color == :white ? "\u2654" : "\u265A"
     @moves = {
       north: [0, 1],
       northE: [-1, 1],
@@ -117,16 +121,17 @@ class King < Piece
 end
 
 class Queen < Piece
-  attr_reader :moves
+  attr_reader :moves, :uni
 
   def initialize(color)
-    super(color, :queen)
+    super(color)
 
+    @uni = color == :white ? "\u2655" : "\u265B"
     @moves = {
-      updiagonal: Bishop.updiagonal,
-      downdiagonal: Bishop.downdiagonal,
-      horizontal: Rook.horizontal,
-      vertical: Rook.vertical
+      updiagonal: updiagonal(),
+      downdiagonal: downdiagonal(),
+      horizontal: [8, 0],
+      vertical: [0, 8]
     }
   end
 end

@@ -8,28 +8,31 @@ class Board
 
   def initialize
     @rows = Array.new(8) { Array.new(8) { "" } }
+
+
     (0...8).each do |x|
-      @rows[x][1] = Piece.new(:black, :pawn)
-      @rows[x][6] = Piece.new(:white, :pawn)
+      @rows[x][1] = Pawn.new(:white)
+      @rows[x][6] = Pawn.new(:black)
     end
 
-    @rows[0][0] = Piece.new(:black, :rook)
-    @rows[1][0] = Piece.new(:black, :knight)
-    @rows[2][0] = Piece.new(:black, :bishop)
-    @rows[3][0] = Piece.new(:black, :queen)
-    @rows[4][0] = Piece.new(:black, :king)
-    @rows[5][0] = Piece.new(:black, :bishop)
-    @rows[6][0] = Piece.new(:black, :knight)
-    @rows[7][0] = Piece.new(:black, :rook)
 
-    @rows[0][7] = Piece.new(:white, :rook)
-    @rows[1][7] = Piece.new(:white, :knight)
-    @rows[2][7] = Piece.new(:white, :bishop)
-    @rows[3][7] = Piece.new(:white, :queen)
-    @rows[4][7] = Piece.new(:white, :king)
-    @rows[5][7] = Piece.new(:white, :bishop)
-    @rows[6][7] = Piece.new(:white, :knight)
-    @rows[7][7] = Piece.new(:white, :rook)
+    @rows[0][7] = Rook.new(:black)
+    @rows[1][7] = Knight.new(:black)
+    @rows[2][7] = Bishop.new(:black)
+    @rows[3][7] = Queen.new(:black)
+    @rows[4][7] = King.new(:black)
+    @rows[5][7] = Bishop.new(:black)
+    @rows[6][7] = Knight.new(:black)
+    @rows[7][7] = Rook.new(:black)
+
+    @rows[0][0] = Rook.new(:white)
+    @rows[1][0] = Knight.new(:white)
+    @rows[2][0] = Bishop.new(:white)
+    @rows[3][0] = Queen.new(:white)
+    @rows[4][0] = King.new(:white)
+    @rows[5][0] = Bishop.new(:white)
+    @rows[6][0] = Knight.new(:white)
+    @rows[7][0] = Rook.new(:white)
   end
 
   def get(x, y)
@@ -50,11 +53,11 @@ class Board
     case color
       when 'white'
         @rows.each do |row|
-          puts row.map { |piece| piece == "" ? " " : piece.symbol }.join(" ")
+          puts row.map { |piece| piece == "" ? " " : piece.uni }.join(" ")
         end
       when 'black'
         @rows.transpose.each do |row|
-          puts row.map { |piece| piece == "" ? " ": piece.symbol }.join(" ")
+          puts row.map { |piece| piece == "" ? " ": piece.uni }.join(" ")
         end
       end
   end
@@ -66,27 +69,29 @@ class Board
   def find(color, piece)
     if color == 'white'
       case piece
-      when 'pawn'then symbol = "\u2659"
-      when 'rook' then symbol = "\u2656"
-      when 'knight' then symbol = "\u2658"
-      when 'bishop' then symbol = "\u2657"
-      when 'king' then symbol = "\u2654"
-      when 'queen' then symbol = "\u2655"
+      when 'pawn'then uni = "\u2659"
+      when 'rook' then uni = "\u2656"
+      when 'knight' then uni = "\u2658"
+      when 'bishop' then uni = "\u2657"
+      when 'king' then uni = "\u2654"
+      when 'queen' then uni = "\u2655"
       end
+      color = :white
     elsif color == 'black'
       case piece
-      when 'pawn'then symbol = "\u265F"
-      when 'rook' then symbol = "\u265C"
-      when 'knight' then symbol = "\u265E"
-      when 'bishop' then symbol = "\u265D"
-      when 'king' then symbol = "\u265A"
-      when 'queen' then symbol = "\u265B"
+      when 'pawn'then uni = "\u265F"
+      when 'rook' then uni = "\u265C"
+      when 'knight' then uni = "\u265E"
+      when 'bishop' then uni = "\u265D"
+      when 'king' then uni = "\u265A"
+      when 'queen' then uni = "\u265B"
       end
+      color = :black
     end
     list = []
     @rows.each_with_index do |row, row_index|
       row.each_with_index do |cell, col_index|
-        if cell.is_a?(Piece) && cell.symbol == symbol
+        if cell.is_a?(Piece) && cell.uni == uni
         list << [row_index, col_index]
         end
       end
@@ -97,17 +102,20 @@ class Board
   def islegal?(color, move)
   end
 
-  def clear(x,y)
-    @row[x,y] = ""
+  def clear(x, y)
+    @rows[x][y] = ""
   end
 
   def move(color, move)
-    piece = move.length == 3? move.first : 'pawn'
-    x, y = move[-2], move[-1]
+    piece = move.length == 3? move[0] : 'pawn'
+    x, y = move[-2], move[-1].to_i
+    x = FILES.find_index(x) if x.is_a?(String)
+    y -= 1
+    puts x, y
     if move == move.downcase
       puts please enter a valid move
       new_move = gets.chomp
-      move(color,new_move)
+      return move(color,new_move)
     else
       case piece
       when 'K'
@@ -121,31 +129,48 @@ class Board
       when 'N'
         then
         knights = find(color, 'knight')
-        knights.each_with_index do |knight, index|
-          j , k = knight[0], knight[1]
-          Knight.moves.each do |move|
-            a,b = move[0], move[1]
+        knights.each do |knight_pos|
+          j , k = knight_pos
+          knight = get(j,k)
+          knight.moves.each do |move, coordinates|
+            a,b = coordinates
             if [a+j,  k+b] == [x, y]
-              chosen_knight = knights[index]
-              chosen_knight_x = knights[index][0]
-              chosen_knight_y = knights[index][1]
+              set(x, y, knight)
+              clear(j,k)
+              return true
             end
           end
         end
-        knight = find(chosen_knight_x, chosen_knight_y)
-        set(x, y, knight)
-        clear(chosen_knight_x, chosen_knight_y)
+
       when 'pawn'
         then
         pawns = find(color, 'pawn')
         pawns.each_with_index do |pawn, index|
           j , k = pawn[0], pawn[1]
-          Pawn.moves.each do |move|
-            a,b = move[0], move[1]
-            if [a+j,  k+b] == [x, y]
-              chosen_pawn = pawn[index]
-              chosen_pawn = pawn[index][0]
-              chosen_pawn = pawn[index][1]
+            if k == 1 || k == 6
+              Pawn.moves.each do |move|
+                a,b = move[0], move[1]
+                if [a+j,  k+b] == [x, y]
+                  chosen_pawn = pawn[index]
+                  chosen_pawn_x = pawn[index][0]
+                  chosen_pawn_y = pawn[index][1]
+                end
+              end
+            elsif get((j+1),(k+1)).color != color || get((j-1),(k+1)) != color
+              Pawn.capture_moves.each do |move|
+                a, b = move[0], [1]
+                if [a+j,  k+b] == [x, y]
+                  chosen_pawn = pawn[index]
+                  chosen_pawn_x = pawn[index][0]
+                  chosen_pawn_y = pawn[index][1]
+                end
+              end
+            else
+              a,b = Pawn.moves[:up][0], Pawn.moves[:up][0]
+              if [a+j,  k+b] == [x, y]
+                chosen_pawn = pawn[index]
+                chosen_pawn_x = pawn[index][0]
+                chosen_pawn_y = pawn[index][1]
             end
           end
         end
@@ -156,3 +181,7 @@ class Board
     end
   end
 end
+
+board = Board.new
+board.move('white','Nc3')
+board.show_board('white')
