@@ -1,24 +1,16 @@
-PIECES_UNI = {
-  :pawn => {:white => "\u2659", :black => "\u265F"},
-  :rook => {:white => "\u2656", :black => "\u265C"},
-  :knight => {:white => "\u2658", :black => "\u265E"},
-  :bishop => {:white => "\u2657", :black => "\u265D"},
-  :king => {:white => "\u2654", :black => "\u265A"},
-  :queen => {:white => "\u2655", :black => "\u265B"}
-}
+
 class Piece
   attr_reader :color, :piece, :uni
 
-  def initialize(color)
-    @color = color
+  def initialize
   end
 end
 
 class Pawn < Piece
-  attr_reader :moves , :uni
+  attr_reader :moves , :uni, :color, :capture_moves
 
   def initialize(color)
-    super(color)
+    @color = color
 
     @uni = color == :white ?  "\u2659" : "\u265F"
     @moves = {
@@ -30,10 +22,10 @@ class Pawn < Piece
 end
 
 class Rook < Piece
-  attr_reader :moves, :uni
+  attr_reader :moves, :uni, :color
 
   def initialize(color)
-    super(color)
+    @color = color
 
     @uni = color == :white ? "\u2656" : "\u265C"
     @moves = {
@@ -44,11 +36,10 @@ class Rook < Piece
 end
 
 class Knight < Piece
-  attr_reader :moves, :uni
+  attr_reader :moves, :uni, :color
 
   def initialize(color)
-    super(color)
-
+    @color = color
     @uni = color == :white ? "\u2658" : "\u265E"
     @moves = {
       southW: [1, -2],
@@ -64,11 +55,10 @@ class Knight < Piece
 end
 
 class Bishop < Piece
-  attr_reader :moves, :uni
+  attr_reader :moves, :uni, :color
 
   def initialize(color)
-    super(color)
-
+    @color = color
     @uni = color == :white ? "\u2657" : "\u265D"
     @moves = {
       updiagonal: updiagonal(),
@@ -101,11 +91,10 @@ end
 
 
 class King < Piece
-  attr_reader :moves, :uni
+  attr_reader :moves, :uni, :color
 
   def initialize(color)
-    super(color)
-
+    @color = color
     @uni = color == :white ? "\u2654" : "\u265A"
     @moves = {
       north: [0, 1],
@@ -121,10 +110,10 @@ class King < Piece
 end
 
 class Queen < Piece
-  attr_reader :moves, :uni
+  attr_reader :moves, :uni, :color
 
   def initialize(color)
-    super(color)
+    @color = color
 
     @uni = color == :white ? "\u2655" : "\u265B"
     @moves = {
