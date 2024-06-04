@@ -34,7 +34,7 @@ class Board
 
   def get(x, y)
     x = FILES.find_index(x) if x.is_a?(String)
-    @rows[x][y]
+    piece = @rows[x][y] != "" ? @rows[x][y] : nil
   end
 
   def set(x, y, piece)
@@ -103,7 +103,7 @@ class Board
   end
 
   def move(color, move)
-    piece = move.length == 3? move[0] : 'pawn'
+    piece = move.length == 3? move[0] : 'P'
     x, y = move[-2], move[-1].to_i
     x = FILES.find_index(x) if x.is_a?(String)
     y -= 1
@@ -127,7 +127,7 @@ class Board
         knights = find(color, 'knight')
         knights.each do |knight_pos|
           j , k = knight_pos
-          p [j,k]
+          #p [j,k]
           knight = get(j,k)
           knight.moves.each do |move, coordinates|
             a,b = coordinates
@@ -139,41 +139,44 @@ class Board
           end
         end
 
-      when 'pawn'
+      when 'P'
         then
         pawns = find(color, 'pawn')
-        pawns.each_with_index do |pawn, index|
-          j , k = pawn[0], pawn[1]
-            if k == 1 || k == 6
-              Pawn.moves.each do |move|
-                a,b = move[0], move[1]
+        pawns.each_with_index do |pawn_pos, index|
+          j , k = pawn_pos
+          pawn = get(j,k)
+            if j == x && (k == 1 || k == 6)
+              pawn.moves.each do |move, coordinates|
+                a,b = coordinates
                 if [a+j,  k+b] == [x, y]
-                  chosen_pawn = pawn[index]
-                  chosen_pawn_x = pawn[index][0]
-                  chosen_pawn_y = pawn[index][1]
+                  set(x, y, pawn)
+                  clear(j, k)
+                  return true
                 end
               end
-            elsif get((j+1),(k+1)).color != color || get((j-1),(k+1)) != color
-              Pawn.capture_moves.each do |move|
-                a, b = move[0], [1]
-                if [a+j,  k+b] == [x, y]
-                  chosen_pawn = pawn[index]
-                  chosen_pawn_x = pawn[index][0]
-                  chosen_pawn_y = pawn[index][1]
+            elsif move.include?("x")
+              diag1 = j+1, k+1
+              diag2 = j-1, k+1
+              if get(diag1).color != color || get(diag2).color != color
+                Pawn.capture_moves.each do |move|
+                  a, b = move[0], [1]
+                  if [a+j,  k+b] == [x, y]
+                    set(x, y, pawn)
+                    clear(j, k)
+                    return true
+                  end
                 end
               end
             else
-              a,b = Pawn.moves[:up][0], Pawn.moves[:up][1]
+              a = 0
+              b = color == :white ? 1 : -1
               if [a+j,  k+b] == [x, y]
-                chosen_pawn = pawn[index]
-                chosen_pawn_x = pawn[index][0]
-                chosen_pawn_y = pawn[index][1]
+                set(x, y, pawn)
+                clear(j, k)
+                return true
             end
           end
         end
-        pawn = find(chosen_pawn_x, chosen_pawn_y)
-        set(x, y, pawn)
-        clear(chosen_pawn_x, chosen_pawn_y)
       end
     end
     puts "Invalid Move"
@@ -186,6 +189,6 @@ board.move(:white,'Nf3')
 board.move(:black, 'Nf6')
 board.move(:white, 'Nc3')
 board.move(:black, 'Nc6')
-#p board.find(:white, 'knight')
-#board.clear(1,7)
+p board.get(5,1)
+board.move(:white, 'Pe4')
 board.show_board(:white)
