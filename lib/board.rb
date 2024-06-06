@@ -117,10 +117,11 @@ class Board
         end
       end
     end
+    puts "Invalid Move"
     false
   end
 
-  def pawn_move(color,move, x, y)
+  def pawn_move(color,destination, x, y)
     pawns = find(color, 'pawn')
     pawns.each_with_index do |pawn_pos, index|
       j , k = pawn_pos
@@ -128,13 +129,21 @@ class Board
         if j == x && (k == 1 || k == 6)
           pawn.moves.each do |move, coordinates|
             a,b = coordinates
-            if [a+j,  k+b] == [x, y]
-              set(x, y, pawn)
-              clear(j, k)
-              return true
+            if color == :white
+              if [a+j,  k+b] == [x, y]
+                set(x, y, pawn)
+                clear(j, k)
+                return true
+              end
+            elsif color == :black
+              if [ a + j, k - b] == [x, y]
+                set(x, y, pawn)
+                clear(j,k)
+                return true
+              end
             end
           end
-        elsif move.include?("x")
+        elsif destination.include?("x")
           diag1 = j+1, k+1
           diag2 = j-1, k+1
           if get(diag1).color != color || get(diag2).color != color
@@ -157,16 +166,34 @@ class Board
         end
       end
     end
+    puts "Invalid Move"
     false
   end
 
-  def move_reader(color, move)
-    piece = move.length == 3? move[0] : 'P'
-    x, y = move[-2], move[-1].to_i
+  def bishop_move(color, x, y)
+    bishops = find(color, 'bishop')
+    bishops.each_with_index do |bishop_pos, index|
+      j, k = bishop_pos
+      diag1 = bishop.moves[:updiagonal].map { |x, y| y += k}
+      diag2 = bishop.moves[:downdiagonal].map { |x, y| y += k}
+
+      if diag1.include?([x, y]) || diag2.include?([x,y])
+        set(x, y, pawn)
+        clear(j, k)
+        return true
+      end
+    end
+    puts "Invalid Move"
+    false
+  end
+
+  def move_reader(color, destination)
+    piece = destination.length == 3? destination[0] : 'P'
+    x, y = destination[-2], destination[-1].to_i
     x = FILES.find_index(x) if x.is_a?(String)
     y -= 1
     puts x, y
-    if move == move.downcase
+    if destination == destination.downcase
       puts please enter a valid move
       new_move = gets.chomp
       return move_reader(color,new_move)
@@ -174,16 +201,14 @@ class Board
     case piece
     when 'K'
       then
-    when 'B'
-      then
+    when 'B' then return bishop_move(color, x, y)
     when 'R'
       then
     when 'Q'
       then
     when 'N' then return knight_move(color, x, y)
-    when 'P' then return pawn_move(color, move, x, y)
+    when 'P' then return pawn_move(color, destination, x, y)
     end
-    puts "Invalid Move"
     false
   end
 end
@@ -195,4 +220,5 @@ board.move_reader(:white, 'Nc3')
 board.move_reader(:black, 'Nc6')
 board.get(5,1)
 board.move_reader(:white, 'Pe4')
+board.move_reader(:black, 'Pe5')
 board.show_board(:white)
