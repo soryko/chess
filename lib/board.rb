@@ -1,7 +1,7 @@
 
 require_relative 'chess_pieces'
 
-FILES = ['a','b','c','d','e','f','g','h']
+FILES = ['a','b','c','d','e','f','g','h'].reverse!
 
 class Board
   attr_accessor :rows
@@ -174,11 +174,12 @@ class Board
     bishops = find(color, 'bishop')
     bishops.each_with_index do |bishop_pos, index|
       j, k = bishop_pos
-      diag1 = bishop.moves[:updiagonal].map { |x, y| y += k}
-      diag2 = bishop.moves[:downdiagonal].map { |x, y| y += k}
+      bishop = get(j,k)
+      diag1 = Bishop.moves[:updiagonal].map { |dx, dy| [dx + j, dy += k]}
+      diag2 = Bishop.moves[:downdiagonal].map { |dx, dy| [dx+ j, dy += k]}
 
       if diag1.include?([x, y]) || diag2.include?([x,y])
-        set(x, y, pawn)
+        set(x, y, bishop)
         clear(j, k)
         return true
       end
@@ -221,4 +222,8 @@ board.move_reader(:black, 'Nc6')
 board.get(5,1)
 board.move_reader(:white, 'Pe4')
 board.move_reader(:black, 'Pe5')
+board.move_reader(:white, 'Bb5')
+board.move_reader(:black, 'Pd5')
+board.move_reader(:white, 'Pa3')
+board.move_reader(:black, 'Bg4')
 board.show_board(:white)

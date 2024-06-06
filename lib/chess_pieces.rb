@@ -60,35 +60,18 @@ class Bishop < Piece
   def initialize(color)
     @color = color
     @uni = color == :white ? "\u2657" : "\u265D"
-    @moves = {
-      updiagonal: updiagonal(),
-      downdiagonal: downdiagonal()
+    @moves = self.moves
+  end
+
+  def self.moves
+    {
+      updiagonal: (1..7).map { |i| [i, i] },
+      downdiagonal: (1..7).map { |i| [-i, -i]},
+      upanti: (1..7).map { |i| [-i, i]},
+      downanti: (1..7).map { |i| [-i, i]}
     }
   end
 end
-
-def updiagonal
-  coordinates = []
-  (-8..8).each do |x|
-    (-8..8).each do |y|
-      next unless (x + y) >= 0
-      coordinates << [x, y]
-    end
-  end
-  coordinates
-end
-
-def downdiagonal
-  coordinates = []
-  (-8..8).each do |x|
-    (8..-8).each do |y|
-      next unless (x + y) <= 0
-      coordinates << [x, y]
-    end
-  end
-  coordinates
-end
-
 
 class King < Piece
   attr_reader :moves, :uni, :color
@@ -117,8 +100,7 @@ class Queen < Piece
 
     @uni = color == :white ? "\u2655" : "\u265B"
     @moves = {
-      updiagonal: updiagonal(),
-      downdiagonal: downdiagonal(),
+      criss_cross: Bishop.moves,
       horizontal: [8, 0],
       vertical: [0, 8]
     }
