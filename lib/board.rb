@@ -13,7 +13,7 @@ class Board
       @rows[x][1] = Pawn.new(:black)
     end
 
-    @rows[7][0] = Rook.new(:black)  # Swapped rows for black pieces
+    @rows[7][0] = Rook.new(:black)
     @rows[6][0] = Knight.new(:black)
     @rows[5][0] = Bishop.new(:black)
     @rows[4][0] = Queen.new(:black)
@@ -92,7 +92,7 @@ class Board
         end
       end
     end
-    p list
+    list
   end
 
   def islegal?(color, move)
@@ -102,7 +102,65 @@ class Board
     @rows[x][y] = ""
   end
 
-  def move(color, move)
+  def knight_move(color, x, y)
+    knights = find(color, 'knight')
+    knights.each do |knight_pos|
+      j , k = knight_pos
+      #p [j,k]
+      knight = get(j,k)
+      knight.moves.each do |move, coordinates|
+        a,b = coordinates
+        if [a+j,  k+b] == [x, y]
+          set(x, y, knight)
+          clear(j,k)
+          return true
+        end
+      end
+    end
+    false
+  end
+
+  def pawn_move(color,move, x, y)
+    pawns = find(color, 'pawn')
+    pawns.each_with_index do |pawn_pos, index|
+      j , k = pawn_pos
+      pawn = get(j,k)
+        if j == x && (k == 1 || k == 6)
+          pawn.moves.each do |move, coordinates|
+            a,b = coordinates
+            if [a+j,  k+b] == [x, y]
+              set(x, y, pawn)
+              clear(j, k)
+              return true
+            end
+          end
+        elsif move.include?("x")
+          diag1 = j+1, k+1
+          diag2 = j-1, k+1
+          if get(diag1).color != color || get(diag2).color != color
+            Pawn.capture_moves.each do |move|
+              a, b = move[0], [1]
+              if [a+j,  k+b] == [x, y]
+                set(x, y, pawn)
+                clear(j, k)
+                return true
+              end
+            end
+          end
+        else
+          a = 0
+          b = color == :white ? 1 : -1
+          if [a+j,  k+b] == [x, y]
+            set(x, y, pawn)
+            clear(j, k)
+            return true
+        end
+      end
+    end
+    false
+  end
+
+  def move_reader(color, move)
     piece = move.length == 3? move[0] : 'P'
     x, y = move[-2], move[-1].to_i
     x = FILES.find_index(x) if x.is_a?(String)
@@ -111,73 +169,19 @@ class Board
     if move == move.downcase
       puts please enter a valid move
       new_move = gets.chomp
-      return move(color,new_move)
-    else
-      case piece
-      when 'K'
-        then
-      when 'B'
-        then
-      when 'R'
-        then
-      when 'Q'
-        then
-      when 'N'
-        then
-        knights = find(color, 'knight')
-        knights.each do |knight_pos|
-          j , k = knight_pos
-          #p [j,k]
-          knight = get(j,k)
-          knight.moves.each do |move, coordinates|
-            a,b = coordinates
-            if [a+j,  k+b] == [x, y]
-              set(x, y, knight)
-              clear(j,k)
-              return true
-            end
-          end
-        end
-
-      when 'P'
-        then
-        pawns = find(color, 'pawn')
-        pawns.each_with_index do |pawn_pos, index|
-          j , k = pawn_pos
-          pawn = get(j,k)
-            if j == x && (k == 1 || k == 6)
-              pawn.moves.each do |move, coordinates|
-                a,b = coordinates
-                if [a+j,  k+b] == [x, y]
-                  set(x, y, pawn)
-                  clear(j, k)
-                  return true
-                end
-              end
-            elsif move.include?("x")
-              diag1 = j+1, k+1
-              diag2 = j-1, k+1
-              if get(diag1).color != color || get(diag2).color != color
-                Pawn.capture_moves.each do |move|
-                  a, b = move[0], [1]
-                  if [a+j,  k+b] == [x, y]
-                    set(x, y, pawn)
-                    clear(j, k)
-                    return true
-                  end
-                end
-              end
-            else
-              a = 0
-              b = color == :white ? 1 : -1
-              if [a+j,  k+b] == [x, y]
-                set(x, y, pawn)
-                clear(j, k)
-                return true
-            end
-          end
-        end
-      end
+      return move_reader(color,new_move)
+    end
+    case piece
+    when 'K'
+      then
+    when 'B'
+      then
+    when 'R'
+      then
+    when 'Q'
+      then
+    when 'N' then return knight_move(color, x, y)
+    when 'P' then return pawn_move(color, move, x, y)
     end
     puts "Invalid Move"
     false
@@ -185,10 +189,10 @@ class Board
 end
 
 board = Board.new
-board.move(:white,'Nf3')
-board.move(:black, 'Nf6')
-board.move(:white, 'Nc3')
-board.move(:black, 'Nc6')
-p board.get(5,1)
-board.move(:white, 'Pe4')
+board.move_reader(:white,'Nf3')
+board.move_reader(:black, 'Nf6')
+board.move_reader(:white, 'Nc3')
+board.move_reader(:black, 'Nc6')
+board.get(5,1)
+board.move_reader(:white, 'Pe4')
 board.show_board(:white)
