@@ -48,15 +48,15 @@ class Board
 
   def show_board(color)
     case color
-      when :white
-        @rows.transpose.each do |row|
-          puts row.map { |piece| piece == "" ? " " : piece.uni }.join(" ")
-        end
-      when :black
-        @rows.transpose.each do |row|
-          puts row.map { |piece| piece == "" ? " ": piece.uni }.join(" ")
-        end
+    when :white
+      @rows.transpose.each do |row|
+        puts row.map { |piece| piece == "" ? " " : piece.uni }.join(" ")
       end
+    when :black
+      @rows.transpose.each do |row|
+        puts row.map { |piece| piece == "" ? " ": piece.uni }.join(" ")
+      end
+    end
   end
 
   def isoccupied?(x, y)
@@ -106,7 +106,6 @@ class Board
     knights = find(color, 'knight')
     knights.each do |knight_pos|
       j , k = knight_pos
-      #p [j,k]
       knight = get(j,k)
       knight.moves.each do |move, coordinates|
         a,b = coordinates
@@ -123,46 +122,46 @@ class Board
 
   def pawn_move(color,destination, x, y)
     pawns = find(color, 'pawn')
-    pawns.each_with_index do |pawn_pos, index|
+    pawns.each do |pawn_pos|
       j , k = pawn_pos
       pawn = get(j,k)
-        if j == x && (k == 1 || k == 6)
-          pawn.moves.each do |move, coordinates|
-            a,b = coordinates
-            if color == :white
-              if [a+j,  k+b] == [x, y]
-                set(x, y, pawn)
-                clear(j, k)
-                return true
-              end
-            elsif color == :black
-              if [ a + j, k - b] == [x, y]
-                set(x, y, pawn)
-                clear(j,k)
-                return true
-              end
+      if j == x && (k == 1 || k == 6)
+        pawn.moves.each do |move, coordinates|
+          a,b = coordinates
+          if color == :white
+            if [a+j,  k+b] == [x, y]
+              set(x, y, pawn)
+              clear(j, k)
+              return true
+            end
+          elsif color == :black
+            if [ a + j, k - b] == [x, y]
+              set(x, y, pawn)
+              clear(j,k)
+              return true
             end
           end
-        elsif destination.include?("x")
-          diag1 = j+1, k+1
-          diag2 = j-1, k+1
-          if get(diag1).color != color || get(diag2).color != color
-            Pawn.capture_moves.each do |move|
-              a, b = move[0], [1]
-              if [a+j,  k+b] == [x, y]
-                set(x, y, pawn)
-                clear(j, k)
-                return true
-              end
+        end
+      elsif destination.include?("x")
+        diag1 = j+1, k+1
+        diag2 = j-1, k+1
+        if get(diag1).color != color || get(diag2).color != color
+          Pawn.capture_moves.each do |move|
+            a, b = move[0], [1]
+            if [a+j,  k+b] == [x, y]
+              set(x, y, pawn)
+              clear(j, k)
+              return true
             end
           end
-        else
-          a = 0
-          b = color == :white ? 1 : -1
-          if [a+j,  k+b] == [x, y]
-            set(x, y, pawn)
-            clear(j, k)
-            return true
+        end
+      else
+        a = 0
+        b = color == :white ? 1 : -1
+        if [a+j,  k+b] == [x, y]
+          set(x, y, pawn)
+          clear(j, k)
+          return true
         end
       end
     end
@@ -179,9 +178,11 @@ class Board
       diag2 = Bishop.moves[:downdiagonal].map { |dx, dy| [dx+ j, dy += k]}
 
       if diag1.include?([x, y]) || diag2.include?([x,y])
-        set(x, y, bishop)
-        clear(j, k)
-        return true
+        if path_clear?(j, k, x, y)
+          set(x, y, bishop)
+          clear(j, k)
+          return true
+        end
       end
     end
     puts "Invalid Move"
@@ -290,20 +291,74 @@ class Board
     end
     false
   end
-end
 
-board = Board.new
-board.move_reader(:white,'Nf3')
-board.move_reader(:black, 'Nf6')
-board.move_reader(:white, 'Nc3')
-board.move_reader(:black, 'Nc6')
-board.move_reader(:white, 'Pe4')
-board.move_reader(:black, 'Pe5')
-board.move_reader(:white, 'Bb5')
-board.move_reader(:black, 'Pd5')
-board.move_reader(:white, 'Pa3')
-board.move_reader(:black, 'Bg4')
-board.move_reader(:white, 'Rf1')
-board.move_reader(:black, 'Qd6')
-board.move_reader(:white, 'Ke2')
-board.show_board(:white)
+  def check(color)
+    case color
+    when :white
+      then
+      king_pos = find(:black, 'king')
+      j, k = king_pos.first
+      if bishop_move(color, j, k)
+        puts "The black King is checked by the bishop"
+        return true
+      end
+      if rook_move(color, j, k)
+        puts "The black King is checked by the rook"
+        return true
+      end
+      if queen_move(color, j, k)
+        puts "The black King is checked by the queen"
+        return true
+      end
+      if knight_move(color, j, k)
+        puts "The black King is checked by the knight"
+        return true
+      end
+      pawns = find(color, 'pawn')
+      pawns.each_with_index do |pawn_pos, index|
+        m , n = pawn_pos
+        pawn = get(m,n)
+        diag1 = m+1, n+1
+        diag2 = m-1, n+1
+
+        if j == m && k == n
+          puts "the black King is checked by a pawn"
+          return true
+        end
+      end
+    when :black
+      then
+      king_pos = find(:white, 'king')
+      j, k = king_pos.first
+      if bishop_move(color, j, k)
+        puts "The white King is checked by the bishop"
+        return true
+      end
+      if rook_move(color, j, k)
+        puts "The white King is checked by the rook"
+        return true
+      end
+      if queen_move(color, j, k)
+        puts "The white King is checked by the queen"
+        return true
+      end
+      if knight_move(color, j, k)
+        puts "The white King is checked by the knight"
+        return true
+      end
+      pawns = find(color, 'pawn')
+      pawns.each do |pawn_pos|
+        m , n = pawn_pos
+        pawn = get(m,n)
+        diag1 = m+1, n+1
+        diag2 = m-1, n+1
+
+        if j == m && k == n
+          puts "the white King is checked by a pawn"
+          return true
+        end
+      end
+    end
+    false
+  end
+end
