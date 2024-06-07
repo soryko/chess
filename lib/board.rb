@@ -226,9 +226,26 @@ class Board
     false
   end
 
+  def king_move(color, x, y)
+    king_pos = find(color, 'king')
+    j, k = king_pos.first
+    king = get(j, k)
+    king.moves.each do |move, coordinates|
+      a,b = coordinates
+      if color == :white
+        if [a+j,  k+b] == [x, y]
+          set(x, y, king)
+          clear(j, k)
+          return true
+        end
+      end
+    end
+    puts "Invalid Move"
+    false
+  end
 
   def path_clear?(j, k, x, y)
-    if j == x  # Vertical move
+    if j == x
       y_increments = k < y ? 1 : -1
       (k + y_increments).step(y - y_increments, y_increments).each do |step_y|
         return false unless get(j, step_y).nil?
@@ -264,8 +281,7 @@ class Board
       return move_reader(color,new_move)
     end
     case piece
-    when 'K'
-      then
+    when 'K' then return king_move(color, x, y)
     when 'B' then return bishop_move(color, x, y)
     when 'R' then return rook_move(color, x, y)
     when 'Q' then return queen_move(color, x, y)
@@ -289,4 +305,5 @@ board.move_reader(:white, 'Pa3')
 board.move_reader(:black, 'Bg4')
 board.move_reader(:white, 'Rf1')
 board.move_reader(:black, 'Qd6')
+board.move_reader(:white, 'Ke2')
 board.show_board(:white)
