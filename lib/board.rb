@@ -172,7 +172,7 @@ class Board
 
   def bishop_move(color, x, y)
     bishops = find(color, 'bishop')
-    bishops.each_with_index do |bishop_pos, index|
+    bishops.each do |bishop_pos|
       j, k = bishop_pos
       bishop = get(j,k)
       diag1 = Bishop.moves[:updiagonal].map { |dx, dy| [dx + j, dy += k]}
@@ -188,12 +188,76 @@ class Board
     false
   end
 
+  def rook_move(color, x, y)
+    rooks = find(color, 'rook')
+    rooks.each do |rook_pos|
+      j, k = rook_pos
+      rook = get(j, k)
+      if x == j || y == k
+        if path_clear?(j, k, x, y)
+          set(x, y, rook)
+          clear(j, k)
+          return true
+        end
+      end
+    end
+    puts "Invalid Move"
+    false
+  end
+
+  def queen_move(color, x, y)
+    queen_pos = find(color, 'queen')
+    j, k = queen_pos
+    queen = get(j,k)
+    if x == j || y == k
+      if path_clear?(j, k, x, y)
+        set(x, y, queen)
+        clear(j, k)
+        return true
+      end
+    elsif (x - j)**2 == (y-k)**2
+      if path_clear?(j, k, x, y)
+        set(x, y, queen)
+        clear(j, k)
+        return true
+      end
+    end
+    puts "Invalid Move"
+    false
+  end
+
+
+  def path_clear?(j, k, x, y)
+    if j == x  # Vertical move
+      y_increments = k < y ? 1 : -1
+      (k + y_increments).step(y - y_increments, y_increments).each do |step_y|
+        return false unless get(j, step_y).nil?
+      end
+    elsif k == y
+      x_increments = j < x ? 1 : -1
+      (j + x_increments).step(x - x_increments, x_increments).each do |step_x|
+        return false unless get(step_x, k).nil?
+      end
+    elsif (j - x)**2 == (k - y)**2
+      x_increments = (x > j) ? 1 : -1
+      y_increments = (y > k) ? 1 : -1
+      step_x, step_y = j + x_increments, k + y_increments
+      while step_x != x && step_y != y
+        return false unless get(step_x, step_y).nil?
+        step_x += x_increments
+        step_y += y_increments
+      end
+    else
+      return false
+    end
+    true
+  end
+
   def move_reader(color, destination)
     piece = destination.length == 3? destination[0] : 'P'
     x, y = destination[-2], destination[-1].to_i
     x = FILES.find_index(x) if x.is_a?(String)
     y -= 1
-    puts x, y
     if destination == destination.downcase
       puts please enter a valid move
       new_move = gets.chomp
@@ -203,10 +267,8 @@ class Board
     when 'K'
       then
     when 'B' then return bishop_move(color, x, y)
-    when 'R'
-      then
-    when 'Q'
-      then
+    when 'R' then return rook_move(color, x, y)
+    when 'Q' then return queen_move(color, x, y)
     when 'N' then return knight_move(color, x, y)
     when 'P' then return pawn_move(color, destination, x, y)
     end
@@ -219,11 +281,11 @@ board.move_reader(:white,'Nf3')
 board.move_reader(:black, 'Nf6')
 board.move_reader(:white, 'Nc3')
 board.move_reader(:black, 'Nc6')
-board.get(5,1)
 board.move_reader(:white, 'Pe4')
 board.move_reader(:black, 'Pe5')
 board.move_reader(:white, 'Bb5')
 board.move_reader(:black, 'Pd5')
 board.move_reader(:white, 'Pa3')
 board.move_reader(:black, 'Bg4')
+board.move_reader(:white, 'Rf1')
 board.show_board(:white)

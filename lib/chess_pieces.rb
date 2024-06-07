@@ -101,8 +101,8 @@ class Queen < Piece
     @uni = color == :white ? "\u2655" : "\u265B"
     @moves = {
       criss_cross: Bishop.moves,
-      horizontal: [8, 0],
-      vertical: [0, 8]
+      horizontal: (7..0),
+      vertical: (0..7)
     }
   end
 end
