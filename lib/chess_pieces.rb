@@ -65,10 +65,8 @@ class Bishop < Piece
 
   def self.moves
     {
-      updiagonal: (1..7).map { |i| [i, i] },
-      downdiagonal: (1..7).map { |i| [-i, -i]},
-      upanti: (1..7).map { |i| [-i, i]},
-      downanti: (1..7).map { |i| [-i, i]}
+      updiagonal: (-7..7).map { |i| [i, i] },
+      downdiagonal: (-7..7).map { |i| [-i, -i]},
     }
   end
 end

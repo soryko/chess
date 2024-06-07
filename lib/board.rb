@@ -207,7 +207,7 @@ class Board
 
   def queen_move(color, x, y)
     queen_pos = find(color, 'queen')
-    j, k = queen_pos
+    j, k = queen_pos.first
     queen = get(j,k)
     if x == j || y == k
       if path_clear?(j, k, x, y)
@@ -288,4 +288,5 @@ board.move_reader(:black, 'Pd5')
 board.move_reader(:white, 'Pa3')
 board.move_reader(:black, 'Bg4')
 board.move_reader(:white, 'Rf1')
+board.move_reader(:black, 'Qd6')
 board.show_board(:white)
